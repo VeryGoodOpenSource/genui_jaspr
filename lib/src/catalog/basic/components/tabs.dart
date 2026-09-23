@@ -98,7 +98,11 @@ class TabsComponent extends JasprComponent {
           ]
         : const <_Tab>[];
 
-    return _Tabs(id: scope.id, tabs: tabs, buildChild: scope.buildChild);
+    return _Tabs(
+      id: scope.instanceId,
+      tabs: tabs,
+      buildChild: scope.buildChild,
+    );
   }
 }
 

@@ -134,6 +134,7 @@ void main() {
       final component = IconComponent().build(
         ComponentScope(
           id: 'root',
+          instanceId: 'main:root',
           type: 'Icon',
           props: const {'name': 'notAStandardIcon'},
           theme: const {},
@@ -182,6 +183,7 @@ void main() {
           }).build(
             ComponentScope(
               id: 'root',
+              instanceId: 'main:root',
               type: 'Icon',
               props: const {},
               theme: const {},

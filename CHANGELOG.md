@@ -29,7 +29,9 @@ First release. Renders A2UI generative user interfaces in Jaspr, building on
   `copyWith` derives a catalog from an existing one.
 - `ComponentScope` hands a builder its resolved properties, its children, and a
   way to report errors. An action obtained through it never throws out of a
-  click handler.
+  click handler. Its `instanceId` is unique to each rendered instance across
+  the page, so DOM ids and radio group names derived from it stay distinct
+  between surfaces and between rows of a template.
 - `JasprComponent.styles` declares the default rules for the classes a
   component emits, and the `styles` getter `JasprCatalogComposition` adds to a
   `Catalog<JasprComponent>` gathers them, so a catalog derived with `copyWith`

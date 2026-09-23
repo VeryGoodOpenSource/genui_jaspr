@@ -46,7 +46,7 @@ void main() {
         '<p class="a2ui-text a2ui-text--body">Open details</p>'
         '</button>'
         '</div>'
-        '<dialog id="root-dialog" class="a2ui-modal__dialog">'
+        '<dialog id="main:root-dialog" class="a2ui-modal__dialog">'
         '<button class="a2ui-modal__close" aria-label="Close dialog" '
         'type="button">Close</button>'
         '<div class="a2ui-modal__content">'

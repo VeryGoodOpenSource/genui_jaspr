@@ -105,7 +105,7 @@ void main() {
 
     void expectSelectedTab(int selectedIndex) {
       for (var index = 0; index < 2; index++) {
-        final tab = web.document.getElementById('root-tab-$index')!;
+        final tab = web.document.getElementById('main:root-tab-$index')!;
         expect(
           tab.getAttribute('tabindex'),
           index == selectedIndex ? '0' : '-1',
@@ -115,7 +115,7 @@ void main() {
           index == selectedIndex ? 'true' : 'false',
         );
       }
-      expect(web.document.activeElement?.id, 'root-tab-$selectedIndex');
+      expect(web.document.activeElement?.id, 'main:root-tab-$selectedIndex');
     }
 
     await tester.dispatchEvent(

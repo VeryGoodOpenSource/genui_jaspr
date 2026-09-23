@@ -2,22 +2,48 @@
 // with no space, so it matches the rendered HTML exactly.
 // ignore_for_file: missing_whitespace_between_adjacent_strings
 
+import 'package:a2ui_core/a2ui_core.dart';
 import 'package:genui_jaspr/genui_jaspr.dart';
 import 'package:genui_jaspr/src/catalog/basic/components/choice_picker.dart';
 import 'package:jaspr_test/jaspr_test.dart';
+import 'package:json_schema_builder/json_schema_builder.dart';
 
 import '../support/harness.dart';
 import '../support/render.dart';
+
+/// A function that computes a list of options, for a model that sends
+/// `options` as a function call.
+class _PrimaryColoursFunction extends FunctionImplementation {
+  @override
+  String get name => 'primaryColours';
+
+  @override
+  A2uiReturnType get returnType => A2uiReturnType.array;
+
+  @override
+  Schema get argumentSchema => Schema.object();
+
+  @override
+  Object? execute(
+    Map<String, dynamic> args,
+    DataContext context, [
+    CancellationSignal? cancellationSignal,
+  ]) => [
+    {'label': 'Red', 'value': 'red'},
+    {'label': 'Blue', 'value': 'blue'},
+  ];
+}
+
+final Catalog<JasprComponent> _catalog = MinimalJasprCatalog().copyWith(
+  add: [ChoicePickerComponent()],
+  addFunctions: [_PrimaryColoursFunction()],
+);
 
 Future<String> renderChoicePicker(
   List<Map<String, dynamic>> components, {
   Map<String, Object?> data = const {},
 }) async => normalizeHtml(
-  await renderSurface(
-    components,
-    data: data,
-    catalog: MinimalJasprCatalog().copyWith(add: [ChoicePickerComponent()]),
-  ),
+  await renderSurface(components, data: data, catalog: _catalog),
 );
 
 List<Map<String, dynamic>> pickerSurface(Map<String, dynamic> extra) => [
@@ -49,15 +75,42 @@ void main() {
           '<fieldset class="a2ui-choice-picker">'
           '<legend class="a2ui-choice-picker__label">Colour</legend>'
           '<label class="a2ui-choice-picker__option">'
-          '<input class="a2ui-choice-picker__input" type="radio" name="root"/>'
+          '<input class="a2ui-choice-picker__input" type="radio" name="main:root"/>'
           '<span class="a2ui-choice-picker__option-label">Red</span>'
           '</label>'
           '<label class="a2ui-choice-picker__option">'
-          '<input class="a2ui-choice-picker__input" type="radio" name="root" checked/>'
+          '<input class="a2ui-choice-picker__input" type="radio" name="main:root" checked/>'
           '<span class="a2ui-choice-picker__option-label">Blue</span>'
           '</label>'
           '</fieldset>',
         );
+      });
+
+      test('gives each templated row its own radio group', () async {
+        final html = await renderChoicePicker(
+          [
+            {
+              'id': 'root',
+              'component': 'Column',
+              'children': {'componentId': 'picker', 'path': '/rows'},
+            },
+            {
+              'id': 'picker',
+              'component': 'ChoicePicker',
+              'variant': 'mutuallyExclusive',
+              'options': [
+                {'label': 'Red', 'value': 'red'},
+              ],
+              'value': 'red',
+            },
+          ],
+          data: {
+            '/rows': ['a', 'b'],
+          },
+        );
+
+        expect(html, contains('name="main:picker:%2Frows%2F0"'));
+        expect(html, contains('name="main:picker:%2Frows%2F1"'));
       });
 
       test('checks none of them when the value matches no option', () async {
@@ -174,13 +227,89 @@ void main() {
       });
     });
 
-    test(
-      'renders no options rather than crashing when options is bound',
-      () async {
-        // `options` isn't in the schema's dynamic shapes, so a model that binds
-        // it anyway resolves to the unresolved `{path: ...}` map rather than a
-        // list. Degrading to an empty fieldset keeps the surface up rather than
-        // showing the renderer's error fallback.
+    group('options', () {
+      test("resolves each literal option's own bound label", () async {
+        final html = await renderChoicePicker(
+          [
+            {
+              'id': 'root',
+              'component': 'ChoicePicker',
+              'options': [
+                {
+                  'label': {'path': '/redLabel'},
+                  'value': 'red',
+                },
+              ],
+              'value': 'red',
+            },
+          ],
+          data: {'/redLabel': 'Crimson'},
+        );
+
+        expect(
+          html,
+          contains(
+            '<span class="a2ui-choice-picker__option-label">Crimson</span>',
+          ),
+        );
+      });
+
+      test('renders options bound to a data-model path', () async {
+        final html = await renderChoicePicker(
+          [
+            {
+              'id': 'root',
+              'component': 'ChoicePicker',
+              'options': {'path': '/opts'},
+              'value': 'blue',
+            },
+          ],
+          data: {
+            '/opts': [
+              {'label': 'Red', 'value': 'red'},
+              {'label': 'Blue', 'value': 'blue'},
+            ],
+          },
+        );
+
+        expect(
+          html,
+          '<fieldset class="a2ui-choice-picker">'
+          '<label class="a2ui-choice-picker__option">'
+          '<input class="a2ui-choice-picker__input" type="checkbox"/>'
+          '<span class="a2ui-choice-picker__option-label">Red</span>'
+          '</label>'
+          '<label class="a2ui-choice-picker__option">'
+          '<input class="a2ui-choice-picker__input" type="checkbox" checked/>'
+          '<span class="a2ui-choice-picker__option-label">Blue</span>'
+          '</label>'
+          '</fieldset>',
+        );
+      });
+
+      test('skips bound entries that are not options', () async {
+        final html = await renderChoicePicker(
+          [
+            {
+              'id': 'root',
+              'component': 'ChoicePicker',
+              'options': {'path': '/opts'},
+              'value': 'red',
+            },
+          ],
+          data: {
+            '/opts': [
+              'red',
+              {'label': 'Blue', 'value': 'blue'},
+            ],
+          },
+        );
+
+        expect(html, contains('>Blue<'));
+        expect(html, isNot(contains('>red<')));
+      });
+
+      test('renders no options while a bound path holds nothing', () async {
         final html = await renderChoicePicker([
           {
             'id': 'root',
@@ -191,8 +320,66 @@ void main() {
         ]);
 
         expect(html, '<fieldset class="a2ui-choice-picker"></fieldset>');
-      },
-    );
+      });
+
+      testComponents('follows bound options when the data changes', (
+        tester,
+      ) async {
+        final surface = buildSurfaceModel(
+          [
+            {
+              'id': 'root',
+              'component': 'ChoicePicker',
+              'options': {'path': '/opts'},
+              'value': 'red',
+            },
+          ],
+          data: {
+            '/opts': [
+              {'label': 'Red', 'value': 'red'},
+            ],
+          },
+          catalog: _catalog,
+        );
+        tester.pumpComponent(surfaceComponent(surface));
+        await tester.pump();
+
+        expect(find.text('Green'), findsNothing);
+
+        surface.dataModel.set('/opts', [
+          {'label': 'Red', 'value': 'red'},
+          {'label': 'Green', 'value': 'green'},
+        ]);
+        await tester.pump();
+
+        expect(find.text('Green'), findsOneComponent);
+      });
+
+      test('renders options computed by a function call', () async {
+        final html = await renderChoicePicker([
+          {
+            'id': 'root',
+            'component': 'ChoicePicker',
+            'options': {
+              'call': 'primaryColours',
+              'args': <String, Object?>{},
+            },
+            'value': 'red',
+          },
+        ]);
+
+        expect(
+          html,
+          contains('<span class="a2ui-choice-picker__option-label">Red</span>'),
+        );
+        expect(
+          html,
+          contains(
+            '<span class="a2ui-choice-picker__option-label">Blue</span>',
+          ),
+        );
+      });
+    });
 
     test('renders an empty label rather than the text "null"', () async {
       final html = await renderChoicePicker([
@@ -226,7 +413,7 @@ void main() {
       expect(
         html,
         contains(
-          '<input class="a2ui-choice-picker__input" type="radio" name="root" checked/>'
+          '<input class="a2ui-choice-picker__input" type="radio" name="main:root" checked/>'
           '<span class="a2ui-choice-picker__option-label">Blue</span>',
         ),
       );

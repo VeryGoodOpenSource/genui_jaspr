@@ -12,6 +12,7 @@ final class ComponentScope {
   /// Creates a [ComponentScope].
   const ComponentScope({
     required this.id,
+    required this.instanceId,
     required this.type,
     required this.props,
     required this.theme,
@@ -22,6 +23,16 @@ final class ComponentScope {
 
   /// This component's id within its surface.
   final String id;
+
+  /// A key for this rendered instance, unique across the whole page.
+  ///
+  /// [id] is only unique within one surface, and a component repeated by a
+  /// template renders once per row under the same [id]. Derive DOM `id`s and
+  /// radio group `name`s from this instead, so two surfaces, or two rows,
+  /// never share one. It is built from the surface id, [id] and the row's
+  /// data-model path, so the server and the hydrated client agree on it.
+  /// Treat it as opaque: its format is the renderer's to change.
+  final String instanceId;
 
   /// The component type, as named in the catalog.
   final String type;

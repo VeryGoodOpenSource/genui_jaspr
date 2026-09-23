@@ -19,14 +19,24 @@ class ChoicePickerApi extends ComponentApi {
       Schema.object(
         properties: {
           'label': CommonSchemas.dynamicString,
-          'options': Schema.list(
-            items: Schema.object(
-              properties: {
-                'label': CommonSchemas.dynamicString,
-                'value': Schema.string(),
-              },
-              required: ['label', 'value'],
-            ),
+          // The reference implementation's `listOrReference`: a literal
+          // list whose options each bind their own `label`, or a binding or
+          // function call supplying the whole list. The renderer narrows the
+          // schema to whichever the value is, so both resolve fully.
+          'options': Schema.combined(
+            oneOf: [
+              Schema.list(
+                items: Schema.object(
+                  properties: {
+                    'label': CommonSchemas.dynamicString,
+                    'value': Schema.string(),
+                  },
+                  required: ['label', 'value'],
+                ),
+              ),
+              CommonSchemas.dataBinding,
+              CommonSchemas.functionCall,
+            ],
           ),
           'value': Schema.combined(
             anyOf: [
@@ -52,8 +62,9 @@ class ChoicePickerApi extends ComponentApi {
 /// `multipleSelection` (the default, matching the A2UI reference
 /// implementation) renders a checkbox per option and writes back the list of
 /// every option currently checked. `mutuallyExclusive` renders radio buttons
-/// sharing this component's id as their group name, so only one can ever be
-/// checked.
+/// sharing a group name unique to this rendered instance, so only one can ever
+/// be checked, and a picker with the same id on another surface, or in
+/// another row of a template, stays a separate group.
 class ChoicePickerComponent extends JasprComponent {
   /// Creates a [ChoicePickerComponent].
   ChoicePickerComponent();
@@ -123,9 +134,11 @@ class ChoicePickerComponent extends JasprComponent {
   Component build(ComponentScope scope) {
     final labelText = scope.string('label');
     final isMulti = scope.string('variant') != 'mutuallyExclusive';
+    // A bound list comes straight from the data model, which may hold
+    // anything, or nothing yet while the path is unset. Only maps are options.
     final rawOptions = scope.props['options'];
     final options = (rawOptions is List ? rawOptions : const <Object?>[])
-        .cast<Map<Object?, Object?>>();
+        .whereType<Map<Object?, Object?>>();
     final write = scope.setter('value');
     final errors = scope.validationErrors;
 
@@ -139,7 +152,7 @@ class ChoicePickerComponent extends JasprComponent {
           ], classes: 'a2ui-choice-picker__label'),
         for (final option in options)
           _option(
-            groupName: scope.id,
+            groupName: scope.instanceId,
             option: option,
             isMulti: isMulti,
             selected: selected,

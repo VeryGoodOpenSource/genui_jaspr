@@ -39,12 +39,15 @@ Map<String, Object?> _narrow(
   for (final key in const ['allOf', 'anyOf', 'oneOf']) {
     final branches = schema[key];
     if (branches is List) {
-      result[key] = [
-        for (final Object? branch in branches)
-          branch is Map<String, Object?>
-              ? _narrow(branch, properties, narrowed)
-              : branch,
-      ];
+      // A branch that is not a map, such as a boolean schema, has no
+      // properties to narrow and passes through as written.
+      result[key] = branches
+          .map(
+            (branch) => branch is Map<String, Object?>
+                ? _narrow(branch, properties, narrowed)
+                : branch,
+          )
+          .toList();
     }
   }
 

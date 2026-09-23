@@ -14,6 +14,7 @@ void main() {
 
 ComponentScope _scope(String name) => ComponentScope(
   id: 'icon',
+  instanceId: 'main:icon',
   type: 'Icon',
   props: {'name': name},
   theme: const {},

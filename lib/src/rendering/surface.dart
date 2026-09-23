@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:a2ui_core/a2ui_core.dart';
 import 'package:genui_jaspr/src/catalog/jaspr_component.dart';
 import 'package:genui_jaspr/src/conversation/client_messages.dart';
+import 'package:genui_jaspr/src/rendering/narrowed_schema.dart';
 import 'package:genui_jaspr/src/rendering/signal_builder.dart';
 import 'package:genui_jaspr/src/rendering/theme_properties.dart';
 import 'package:jaspr/dom.dart';
@@ -182,6 +183,7 @@ class _A2uiComponentState extends State<A2uiComponent> {
   GenericBinder? _binder;
   JasprComponent? _entry;
   ComponentModel? _model;
+  Set<String> _narrowed = const {};
 
   @override
   void initState() {
@@ -246,17 +248,43 @@ class _A2uiComponentState extends State<A2uiComponent> {
     if (entry == null) return;
     _entry = entry;
 
+    final narrowed = narrowSchema(entry.schema, model.properties);
+    _narrowed = narrowed.narrowed;
+    model.onUpdated.addListener(_onModelUpdated);
     _binder = GenericBinder(
       ComponentContext(component.surface, model, basePath: component.basePath),
-      entry.schema,
+      narrowed.schema,
     );
   }
 
+  /// Re-binds when an update moves a list-or-binding property between a
+  /// literal list and a binding.
+  ///
+  /// The binder re-resolves an edited component on its own, but against the
+  /// schema it was built with, which was narrowed for the previous value. A
+  /// property that became a literal list would keep resolving as one opaque
+  /// value, and one that became a binding would never be watched.
+  void _onModelUpdated(ComponentModel model) {
+    final entry = _entry;
+    if (entry == null || !mounted) return;
+    final narrowed = narrowSchema(entry.schema, model.properties).narrowed;
+    if (narrowed.length == _narrowed.length &&
+        narrowed.containsAll(_narrowed)) {
+      return;
+    }
+    setState(() {
+      _unbind();
+      _bind();
+    });
+  }
+
   void _unbind() {
+    _model?.onUpdated.removeListener(_onModelUpdated);
     _binder?.dispose();
     _binder = null;
     _entry = null;
     _model = null;
+    _narrowed = const {};
   }
 
   @override
@@ -290,6 +318,7 @@ class _A2uiComponentState extends State<A2uiComponent> {
       builder: (context, props) => entry.build(
         ComponentScope(
           id: component.componentId,
+          instanceId: _instanceId,
           type: model.type,
           props: props,
           theme: component.surface.theme,
@@ -300,6 +329,16 @@ class _A2uiComponentState extends State<A2uiComponent> {
       ),
     );
   }
+
+  /// Joins the parts that together identify this instance, each encoded so a
+  /// separator inside one part cannot make two different instances collide.
+  /// The root data-model path is left off, so a component outside any
+  /// template reads as just its surface and id.
+  String get _instanceId => [
+    component.surface.id,
+    component.componentId,
+    if (component.basePath != '/') component.basePath,
+  ].map(Uri.encodeComponent).join(':');
 
   Component _buildChild(String componentId) {
     return A2uiComponent(

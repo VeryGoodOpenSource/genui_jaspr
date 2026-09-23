@@ -79,7 +79,7 @@ class ModalComponent extends JasprComponent {
     final contentId = scope.string('content');
 
     return _Modal(
-      id: scope.id,
+      id: scope.instanceId,
       trigger: triggerId == null
           ? const Component.empty()
           : scope.buildChild(triggerId),

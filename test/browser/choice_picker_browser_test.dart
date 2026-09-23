@@ -4,13 +4,16 @@ library;
 import 'package:a2ui_core/a2ui_core.dart';
 import 'package:genui_jaspr/genui_jaspr.dart';
 import 'package:genui_jaspr/src/catalog/basic/components/choice_picker.dart';
+import 'package:jaspr/dom.dart';
 import 'package:jaspr_test/client_test.dart';
+import 'package:universal_web/web.dart' as web;
 
 /// The hop a VM test cannot reach: a real click on a real radio or checkbox
 /// reaching the data model.
 SurfaceModel<JasprComponent> surfaceWith(
   List<Map<String, dynamic>> components, {
   Map<String, Object?> data = const {},
+  String surfaceId = 'main',
 }) {
   final catalog = MinimalJasprCatalog().copyWith(
     add: [ChoicePickerComponent()],
@@ -20,17 +23,17 @@ SurfaceModel<JasprComponent> surfaceWith(
       A2uiMessage.fromJson({
         'version': 'v0.9',
         'createSurface': {
-          'surfaceId': 'main',
+          'surfaceId': surfaceId,
           'catalogId': catalog.id,
           'sendDataModel': true,
         },
       }),
       A2uiMessage.fromJson({
         'version': 'v0.9',
-        'updateComponents': {'surfaceId': 'main', 'components': components},
+        'updateComponents': {'surfaceId': surfaceId, 'components': components},
       }),
     ]);
-  final surface = processor.groupModel.getSurface('main')!;
+  final surface = processor.groupModel.getSurface(surfaceId)!;
   data.forEach(surface.dataModel.set);
   return surface;
 }
@@ -64,6 +67,42 @@ void main() {
 
       expect(surface.dataModel.get('/colour'), 'blue');
     });
+
+    testClient(
+      'picking a radio leaves a same-id picker on another surface alone',
+      (tester) async {
+        List<Map<String, dynamic>> picker() => pickerSurface({
+          'variant': 'mutuallyExclusive',
+          'value': {'path': '/colour'},
+        });
+        final left = surfaceWith(
+          picker(),
+          data: {'/colour': 'red'},
+          surfaceId: 'left',
+        );
+        final right = surfaceWith(
+          picker(),
+          data: {'/colour': 'red'},
+          surfaceId: 'right',
+        );
+
+        tester.pumpComponent(
+          div([Surface(surface: left), Surface(surface: right)]),
+        );
+
+        await tester.click(find.tag('input').at(1));
+
+        // Radios sharing a name form one group across the whole document, so
+        // checking the left picker's Blue would silently uncheck the right
+        // picker's Red without either data model hearing about it.
+        final rightRed =
+            web.document.querySelectorAll('input').item(2)!
+                as web.HTMLInputElement;
+        expect(left.dataModel.get('/colour'), 'blue');
+        expect(right.dataModel.get('/colour'), 'red');
+        expect(rightRed.checked, isTrue);
+      },
+    );
 
     testClient('checking a box adds its value to the list', (tester) async {
       final surface = surfaceWith(

@@ -22,6 +22,7 @@ void exercise(Catalog<JasprComponent> catalog) {
 
 ComponentScope _scope(String type) => ComponentScope(
   id: 'x',
+  instanceId: 'main:x',
   type: type,
   props: {
     'text': 'x',

@@ -12,7 +12,9 @@ SurfaceModel<JasprComponent> surfaceWith(
   List<Map<String, dynamic>> components, {
   Map<String, Object?> data = const {},
 }) {
-  final catalog = MinimalJasprCatalog().copyWith(add: [CheckBoxComponent()]);
+  final catalog = MinimalJasprCatalog().copyWith(
+    add: [const CheckBoxComponent()],
+  );
   final processor = MessageProcessor<JasprComponent>(catalogs: [catalog])
     ..processMessages([
       A2uiMessage.fromJson({

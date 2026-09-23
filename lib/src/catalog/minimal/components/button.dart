@@ -8,12 +8,9 @@ import 'package:jaspr/jaspr.dart';
 /// A button whose `checks` are failing is disabled, so the surface stops an
 /// invalid submission at the point of interaction rather than sending it and
 /// waiting for the model to object.
-class ButtonComponent extends JasprComponent {
+class ButtonComponent extends ExternalApiJasprComponent {
   /// Creates a [ButtonComponent].
-  ButtonComponent();
-
-  @override
-  final ComponentApi api = MinimalButtonApi();
+  ButtonComponent() : super(MinimalButtonApi());
 
   @override
   List<StyleRule> get styles => const [

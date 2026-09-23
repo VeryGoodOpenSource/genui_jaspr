@@ -79,18 +79,18 @@ Future<String> renderIcon(
       {'id': 'root', 'component': 'Icon', 'name': name},
     ],
     data: data,
-    catalog: MinimalJasprCatalog().copyWith(add: [IconComponent()]),
+    catalog: MinimalJasprCatalog().copyWith(add: [const IconComponent()]),
   ),
 );
 
 void main() {
   group('Icon', () {
     test('exposes the pinned A2UI v0.9 API', () {
-      final api = IconApi();
+      const component = IconComponent();
 
-      expect(api.name, 'Icon');
+      expect(component.name, 'Icon');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {
             'name': Schema.combined(
@@ -131,7 +131,7 @@ void main() {
 
     test('reports and omits an unknown icon name', () async {
       final errors = <Object>[];
-      final component = IconComponent().build(
+      final component = const IconComponent().build(
         ComponentScope(
           id: 'root',
           instanceId: 'main:root',

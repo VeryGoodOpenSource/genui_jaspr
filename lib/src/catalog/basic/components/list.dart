@@ -4,11 +4,15 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// `List`'s API from the A2UI v0.9 basic catalog.
-class ListApi extends ComponentApi {
+/// A scrollable collection of child components.
+class ListComponent extends JasprComponent {
+  /// Creates a [ListComponent].
+  const ListComponent();
+
   @override
   String get name => 'List';
 
+  /// The schema from the A2UI v0.9 basic catalog.
   @override
   Schema get schema => Schema.object(
     properties: {
@@ -18,15 +22,6 @@ class ListApi extends ComponentApi {
     },
     required: ['children'],
   );
-}
-
-/// A scrollable collection of child components.
-class ListComponent extends JasprComponent {
-  /// Creates a [ListComponent].
-  ListComponent();
-
-  @override
-  final ComponentApi api = ListApi();
 
   @override
   List<StyleRule> get styles => const [

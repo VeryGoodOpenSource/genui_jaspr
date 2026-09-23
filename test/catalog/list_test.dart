@@ -13,17 +13,17 @@ Future<String> renderList(
 }) => renderSurface(
   components,
   data: data,
-  catalog: MinimalJasprCatalog().copyWith(add: [ListComponent()]),
+  catalog: MinimalJasprCatalog().copyWith(add: [const ListComponent()]),
 );
 
 void main() {
   group('List', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = ListApi();
+      const component = ListComponent();
 
-      expect(api.name, 'List');
+      expect(component.name, 'List');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {
             'children': CommonSchemas.childList,

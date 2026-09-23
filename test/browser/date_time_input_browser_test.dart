@@ -13,7 +13,7 @@ SurfaceModel<JasprComponent> surfaceWith(
   Map<String, Object?> data = const {},
 }) {
   final catalog = MinimalJasprCatalog().copyWith(
-    add: [DateTimeInputComponent()],
+    add: [const DateTimeInputComponent()],
   );
   final processor = MessageProcessor<JasprComponent>(catalogs: [catalog])
     ..processMessages([

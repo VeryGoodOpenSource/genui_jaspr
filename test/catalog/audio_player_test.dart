@@ -10,11 +10,11 @@ import '../support/render.dart';
 void main() {
   group('AudioPlayer', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = AudioPlayerApi();
+      const component = AudioPlayerComponent();
 
-      expect(api.name, 'AudioPlayer');
+      expect(component.name, 'AudioPlayer');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {
             'url': CommonSchemas.dynamicString,
@@ -43,7 +43,7 @@ void main() {
               '/audio/description': 'Episode one',
             },
             catalog: MinimalJasprCatalog().copyWith(
-              add: [AudioPlayerComponent()],
+              add: [const AudioPlayerComponent()],
             ),
           ),
         );

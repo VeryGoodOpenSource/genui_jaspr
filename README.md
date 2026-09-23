@@ -266,24 +266,20 @@ A backend that delivers A2UI already parsed, such as an A2A agent, goes through
 
 ### Adding a component
 
-A component is a `JasprComponent`: an `a2ui_core` API, which owns the name and
-the schema, a `build` method that turns resolved properties into HTML, and the
-style rules for the classes that `build` emits. The API classes for the minimal
-catalog come from `a2ui_core`. For a component of your own, define all three
-together:
+A component is a `JasprComponent`. It is its own `a2ui_core` API, so one class
+declares the name, the schema that decides how each property binds, a `build`
+method that turns resolved properties into HTML, and the style rules for the
+classes that `build` emits:
 
 ```dart
-class DividerApi extends ComponentApi {
+class DividerComponent extends JasprComponent {
+  const DividerComponent();
+
   @override
   String get name => 'Divider';
 
   @override
   Schema get schema => Schema.object(properties: {});
-}
-
-class DividerComponent extends JasprComponent {
-  @override
-  final ComponentApi api = DividerApi();
 
   @override
   Component build(ComponentScope scope) => hr(classes: 'a2ui-divider');
@@ -309,13 +305,28 @@ its schema:
 ```dart
 final catalog = MinimalJasprCatalog().copyWith(
   id: 'com.example.catalog',
-  add: [DividerComponent()],
+  add: [const DividerComponent()],
 );
 ```
 
 `catalog.styles` now carries the divider's rule along with the minimal
 components'. That is the point of deriving the bundle from the catalog rather
 than writing it out: there is no second list to remember to update.
+
+When the API is defined somewhere else, extend `ExternalApiJasprComponent` and
+pass it up instead of restating its schema. The minimal catalog's components do
+this with the API classes `a2ui_core` ships, so what the model is told it may
+send and what the renderer draws come from the same definition:
+
+```dart
+class TextComponent extends ExternalApiJasprComponent {
+  TextComponent() : super(MinimalTextApi());
+
+  @override
+  Component build(ComponentScope scope) =>
+      p([Component.text(scope.string('text') ?? '')]);
+}
+```
 
 `build` gets a `ComponentScope` with the properties already resolved: data
 bindings read, function calls evaluated, actions turned into callbacks. Read a

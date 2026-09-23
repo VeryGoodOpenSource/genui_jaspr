@@ -25,8 +25,10 @@ First release. Renders A2UI generative user interfaces in Jaspr, building on
 - `MinimalJasprCatalog` renders the five components of the A2UI minimal catalog,
   `TextComponent`, `RowComponent`, `ColumnComponent`, `ButtonComponent`, and
   `TextFieldComponent`. Schemas and the catalog id come from `a2ui_core`
-  unchanged. `JasprComponent` is the base class for a component of your own, and
-  `copyWith` derives a catalog from an existing one.
+  unchanged. `JasprComponent` is the base class for a component of your own,
+  declaring its name and schema alongside `build`. `ExternalApiJasprComponent`
+  renders an API defined elsewhere, as the minimal components do with
+  `a2ui_core`'s. `copyWith` derives a catalog from an existing one.
 - `ComponentScope` hands a builder its resolved properties, its children, and a
   way to report errors. An action obtained through it never throws out of a
   click handler. Its `instanceId` is unique to each rendered instance across

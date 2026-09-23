@@ -16,7 +16,9 @@ Future<String> renderDateTimeInput(
   await renderSurface(
     components,
     data: data,
-    catalog: MinimalJasprCatalog().copyWith(add: [DateTimeInputComponent()]),
+    catalog: MinimalJasprCatalog().copyWith(
+      add: [const DateTimeInputComponent()],
+    ),
   ),
 );
 
@@ -182,7 +184,7 @@ void main() {
       ) async {
         final captured = await captureScope(
           tester,
-          DateTimeInputApi(),
+          const DateTimeInputComponent(),
           [
             {
               'id': 'root',
@@ -206,14 +208,18 @@ void main() {
       });
 
       testComponents('a literal value provides no setter', (tester) async {
-        final captured = await captureScope(tester, DateTimeInputApi(), [
-          {
-            'id': 'root',
-            'component': 'DateTimeInput',
-            'label': 'Birthday',
-            'value': '2024-01-01',
-          },
-        ]);
+        final captured = await captureScope(
+          tester,
+          const DateTimeInputComponent(),
+          [
+            {
+              'id': 'root',
+              'component': 'DateTimeInput',
+              'label': 'Birthday',
+              'value': '2024-01-01',
+            },
+          ],
+        );
 
         expect(captured.scope.setter('value'), isNull);
       });

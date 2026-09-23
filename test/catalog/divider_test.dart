@@ -7,16 +7,16 @@ import '../support/harness.dart';
 
 Future<String> renderDivider(Map<String, dynamic> extra) => renderSurface([
   {'id': 'root', 'component': 'Divider', ...extra},
-], catalog: MinimalJasprCatalog().copyWith(add: [DividerComponent()]));
+], catalog: MinimalJasprCatalog().copyWith(add: [const DividerComponent()]));
 
 void main() {
   group('Divider', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = DividerApi();
+      const component = DividerComponent();
 
-      expect(api.name, 'Divider');
+      expect(component.name, 'Divider');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {
             'axis': Schema.string(enumValues: ['horizontal', 'vertical']),

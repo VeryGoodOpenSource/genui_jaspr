@@ -16,7 +16,7 @@ Future<String> renderCheckBox(
   await renderSurface(
     components,
     data: data,
-    catalog: MinimalJasprCatalog().copyWith(add: [CheckBoxComponent()]),
+    catalog: MinimalJasprCatalog().copyWith(add: [const CheckBoxComponent()]),
   ),
 );
 
@@ -127,7 +127,7 @@ void main() {
       ) async {
         final captured = await captureScope(
           tester,
-          CheckBoxApi(),
+          const CheckBoxComponent(),
           [
             {
               'id': 'root',
@@ -151,7 +151,7 @@ void main() {
       });
 
       testComponents('a literal value provides no setter', (tester) async {
-        final captured = await captureScope(tester, CheckBoxApi(), [
+        final captured = await captureScope(tester, const CheckBoxComponent(), [
           {
             'id': 'root',
             'component': 'CheckBox',

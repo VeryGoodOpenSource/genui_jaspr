@@ -35,7 +35,7 @@ class _PrimaryColoursFunction extends FunctionImplementation {
 }
 
 final Catalog<JasprComponent> _catalog = MinimalJasprCatalog().copyWith(
-  add: [ChoicePickerComponent()],
+  add: [const ChoicePickerComponent()],
   addFunctions: [_PrimaryColoursFunction()],
 );
 
@@ -451,7 +451,7 @@ void main() {
         (tester) async {
           final captured = await captureScope(
             tester,
-            ChoicePickerApi(),
+            const ChoicePickerComponent(),
             pickerSurface({
               'variant': 'mutuallyExclusive',
               'value': {'path': '/colour'},
@@ -476,7 +476,7 @@ void main() {
         (tester) async {
           final captured = await captureScope(
             tester,
-            ChoicePickerApi(),
+            const ChoicePickerComponent(),
             pickerSurface({
               'variant': 'multipleSelection',
               'value': {'path': '/colours'},
@@ -504,7 +504,7 @@ void main() {
       testComponents('a literal value provides no setter', (tester) async {
         final captured = await captureScope(
           tester,
-          ChoicePickerApi(),
+          const ChoicePickerComponent(),
           pickerSurface({'value': 'red'}),
         );
 

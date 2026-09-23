@@ -133,14 +133,19 @@ typedef ComponentBuilder = Component Function(ComponentScope scope);
 
 /// A catalog entry: a component's A2UI API, how to render it, and how it looks.
 ///
-/// The API side comes from `a2ui_core`, which owns the name and the schema that
-/// decides how each property binds. Subclasses add the Jaspr sides, [build] and
-/// [styles], so the protocol definition and the renderer stay separable:
+/// A component is its own [ComponentApi]: it declares the [name] and the
+/// [schema] that decides how each property binds, alongside the Jaspr sides,
+/// [build] and [styles]:
 ///
 /// ```dart
 /// class DividerComponent extends JasprComponent {
+///   const DividerComponent();
+///
 ///   @override
-///   final ComponentApi api = DividerApi();
+///   String get name => 'Divider';
+///
+///   @override
+///   Schema get schema => Schema.object(properties: {});
 ///
 ///   @override
 ///   Component build(ComponentScope scope) => hr(classes: 'a2ui-divider');
@@ -155,8 +160,10 @@ typedef ComponentBuilder = Component Function(ComponentScope scope);
 /// }
 /// ```
 ///
-/// For a one-off, or in a test, [JasprComponent.inline] takes the parts
-/// directly without a class of their own.
+/// To render a component whose API is defined elsewhere, such as the minimal
+/// catalog's in `a2ui_core`, extend [ExternalApiJasprComponent] instead. For a
+/// one-off, or in a test, [JasprComponent.inline] takes the parts directly
+/// without a class of their own.
 abstract class JasprComponent implements ComponentApi {
   /// A constructor for subclasses to call.
   const JasprComponent();
@@ -173,9 +180,6 @@ abstract class JasprComponent implements ComponentApi {
     List<StyleRule> styles,
   }) = _InlineJasprComponent;
 
-  /// The protocol definition for this component.
-  ComponentApi get api;
-
   /// Renders the component from its resolved properties.
   Component build(ComponentScope scope);
 
@@ -191,6 +195,31 @@ abstract class JasprComponent implements ComponentApi {
   /// a model can choose an accent at runtime while the rules stay static. Each
   /// `var()` carries a fallback, so an untouched theme still renders sensibly.
   List<StyleRule> get styles => const [];
+}
+
+/// A component that renders an API defined somewhere else.
+///
+/// The minimal catalog's APIs come from `a2ui_core`, which is also where any
+/// other renderer of that catalog gets them. Wrapping the same [api] rather
+/// than restating its schema keeps what the model is told it may send and
+/// what this renders from drifting apart. Subclasses pass the API up and
+/// supply [build] and, if they style their markup, [styles]:
+///
+/// ```dart
+/// class TextComponent extends ExternalApiJasprComponent {
+///   TextComponent() : super(MinimalTextApi());
+///
+///   @override
+///   Component build(ComponentScope scope) =>
+///       p([Component.text(scope.string('text') ?? '')]);
+/// }
+/// ```
+abstract class ExternalApiJasprComponent extends JasprComponent {
+  /// Creates a component that renders [api].
+  const ExternalApiJasprComponent(this.api);
+
+  /// The protocol definition this component renders.
+  final ComponentApi api;
 
   @override
   String get name => api.name;
@@ -199,11 +228,8 @@ abstract class JasprComponent implements ComponentApi {
   Schema get schema => api.schema;
 }
 
-final class _InlineJasprComponent extends JasprComponent {
-  const _InlineJasprComponent(this.api, this._build, {this.styles = const []});
-
-  @override
-  final ComponentApi api;
+final class _InlineJasprComponent extends ExternalApiJasprComponent {
+  const _InlineJasprComponent(super.api, this._build, {this.styles = const []});
 
   @override
   final List<StyleRule> styles;

@@ -4,25 +4,20 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// `Video`'s API from the A2UI v0.9 basic catalog.
-class VideoApi extends ComponentApi {
+/// Plays video from an A2UI-provided URL using the browser's native controls.
+class VideoComponent extends JasprComponent {
+  /// Creates a [VideoComponent].
+  const VideoComponent();
+
   @override
   String get name => 'Video';
 
+  /// The schema from the A2UI v0.9 basic catalog.
   @override
   Schema get schema => Schema.object(
     properties: {'url': CommonSchemas.dynamicString},
     required: ['url'],
   );
-}
-
-/// Plays video from an A2UI-provided URL using the browser's native controls.
-class VideoComponent extends JasprComponent {
-  /// Creates a [VideoComponent].
-  VideoComponent();
-
-  @override
-  final ComponentApi api = VideoApi();
 
   @override
   List<StyleRule> get styles => const [

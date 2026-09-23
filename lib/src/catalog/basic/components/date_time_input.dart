@@ -5,14 +5,28 @@ import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:universal_web/web.dart' as web;
 
-/// `DateTimeInput`'s API, one of the basic catalog's components that
-/// `a2ui_core` does not ship. Its schema matches the A2UI spec's basic
-/// catalog, taken from Flutter's `genui` reference implementation since
-/// `a2ui_core` has none to copy it from.
-class DateTimeInputApi extends ComponentApi {
+/// A date, time, or date-and-time input, bound to the data model in both
+/// directions. Omitting `variant` renders both a date and a time picker, the
+/// same default the A2UI spec's other renderers use.
+///
+/// Jaspr's own `onInput` converts a date, time, or datetime-local input's
+/// value to a `DateTime`, which throws once the field is cleared (its
+/// `valueAsNumber` is `NaN`, and `NaN.toInt()` has no web implementation).
+/// This registers a raw `input` listener instead and reads the element's
+/// `value` directly, which is already the exact string the schema binds, so
+/// nothing needs converting or reformatting, and clearing the field writes
+/// null the same way Slider and `TextField`'s number variant treat their own
+/// missing-value case, rather than throwing.
+class DateTimeInputComponent extends JasprComponent {
+  /// Creates a [DateTimeInputComponent].
+  const DateTimeInputComponent();
+
   @override
   String get name => 'DateTimeInput';
 
+  /// The schema from the A2UI spec's basic catalog, taken from Flutter's
+  /// `genui` reference implementation since `a2ui_core` has none to copy it
+  /// from.
   @override
   Schema get schema => Schema.combined(
     allOf: [
@@ -29,26 +43,6 @@ class DateTimeInputApi extends ComponentApi {
       ),
     ],
   );
-}
-
-/// A date, time, or date-and-time input, bound to the data model in both
-/// directions. Omitting `variant` renders both a date and a time picker, the
-/// same default the A2UI spec's other renderers use.
-///
-/// Jaspr's own `onInput` converts a date, time, or datetime-local input's
-/// value to a `DateTime`, which throws once the field is cleared (its
-/// `valueAsNumber` is `NaN`, and `NaN.toInt()` has no web implementation).
-/// This registers a raw `input` listener instead and reads the element's
-/// `value` directly, which is already the exact string the schema binds, so
-/// nothing needs converting or reformatting, and clearing the field writes
-/// null the same way Slider and `TextField`'s number variant treat their own
-/// missing-value case, rather than throwing.
-class DateTimeInputComponent extends JasprComponent {
-  /// Creates a [DateTimeInputComponent].
-  DateTimeInputComponent();
-
-  @override
-  final ComponentApi api = DateTimeInputApi();
 
   @override
   List<StyleRule> get styles => const [

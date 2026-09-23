@@ -4,14 +4,26 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// `ChoicePicker`'s API, one of the basic catalog's components that
-/// `a2ui_core` does not ship. Its schema is trimmed to the fields this
-/// renderer acts on: a labelled group of options, rendered as radio buttons
-/// when `mutuallyExclusive` or checkboxes when `multipleSelection`.
-class ChoicePickerApi extends ComponentApi {
+/// A group of options the user picks one or more of, bound to the data model
+/// in both directions.
+///
+/// `multipleSelection` (the default, matching the A2UI reference
+/// implementation) renders a checkbox per option and writes back the list of
+/// every option currently checked. `mutuallyExclusive` renders radio buttons
+/// sharing a group name unique to this rendered instance, so only one can ever
+/// be checked, and a picker with the same id on another surface, or in
+/// another row of a template, stays a separate group.
+class ChoicePickerComponent extends JasprComponent {
+  /// Creates a [ChoicePickerComponent].
+  const ChoicePickerComponent();
+
   @override
   String get name => 'ChoicePicker';
 
+  /// The basic catalog's schema, which `a2ui_core` does not ship, trimmed to
+  /// the fields this renderer acts on: a labelled group of options, rendered as
+  /// radio buttons when `mutuallyExclusive` or checkboxes when
+  /// `multipleSelection`.
   @override
   Schema get schema => Schema.combined(
     allOf: [
@@ -54,23 +66,6 @@ class ChoicePickerApi extends ComponentApi {
       ),
     ],
   );
-}
-
-/// A group of options the user picks one or more of, bound to the data model
-/// in both directions.
-///
-/// `multipleSelection` (the default, matching the A2UI reference
-/// implementation) renders a checkbox per option and writes back the list of
-/// every option currently checked. `mutuallyExclusive` renders radio buttons
-/// sharing a group name unique to this rendered instance, so only one can ever
-/// be checked, and a picker with the same id on another surface, or in
-/// another row of a template, stays a separate group.
-class ChoicePickerComponent extends JasprComponent {
-  /// Creates a [ChoicePickerComponent].
-  ChoicePickerComponent();
-
-  @override
-  final ComponentApi api = ChoicePickerApi();
 
   @override
   List<StyleRule> get styles => const [

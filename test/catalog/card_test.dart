@@ -15,18 +15,18 @@ Future<String> renderCard(List<Map<String, dynamic>> components) async =>
     normalizeHtml(
       await renderSurface(
         components,
-        catalog: MinimalJasprCatalog().copyWith(add: [CardComponent()]),
+        catalog: MinimalJasprCatalog().copyWith(add: [const CardComponent()]),
       ),
     );
 
 void main() {
   group('Card', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = CardApi();
+      const component = CardComponent();
 
-      expect(api.name, 'Card');
+      expect(component.name, 'Card');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {'child': CommonSchemas.componentId},
           required: ['child'],

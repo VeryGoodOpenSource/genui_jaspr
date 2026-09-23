@@ -8,12 +8,9 @@ import 'package:jaspr/jaspr.dart';
 /// A heading variant becomes a real heading element rather than a styled `div`,
 /// so a generated page keeps a document outline that screen readers and search
 /// engines can follow.
-class TextComponent extends JasprComponent {
+class TextComponent extends ExternalApiJasprComponent {
   /// Creates a [TextComponent].
-  TextComponent();
-
-  @override
-  final ComponentApi api = MinimalTextApi();
+  TextComponent() : super(MinimalTextApi());
 
   @override
   List<StyleRule> get styles => [

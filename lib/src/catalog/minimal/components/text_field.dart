@@ -10,12 +10,9 @@ import 'package:universal_web/web.dart' as web;
 /// needing generated ids. Typing writes straight to the path the model bound
 /// `value` to, so the next request carries what the user entered without the
 /// app copying it anywhere.
-class TextFieldComponent extends JasprComponent {
+class TextFieldComponent extends ExternalApiJasprComponent {
   /// Creates a [TextFieldComponent].
-  TextFieldComponent();
-
-  @override
-  final ComponentApi api = MinimalTextFieldApi();
+  TextFieldComponent() : super(MinimalTextFieldApi());
 
   @override
   List<StyleRule> get styles => const [

@@ -119,12 +119,12 @@ Future<Set<String>> basicClassNames() async {
       [
         {'id': 'root', 'component': 'Icon', 'name': 'add'},
       ],
-      catalog: MinimalJasprCatalog().copyWith(add: [IconComponent()]),
+      catalog: MinimalJasprCatalog().copyWith(add: [const IconComponent()]),
     ),
   ];
 
   final checkBoxCatalog = MinimalJasprCatalog().copyWith(
-    add: [CheckBoxComponent()],
+    add: [const CheckBoxComponent()],
   );
 
   html
@@ -159,7 +159,7 @@ Future<Set<String>> basicClassNames() async {
     );
 
   final choicePickerCatalog = MinimalJasprCatalog().copyWith(
-    add: [ChoicePickerComponent()],
+    add: [const ChoicePickerComponent()],
   );
   final choicePickerOptions = [
     {'label': 'Red', 'value': 'red'},
@@ -220,7 +220,7 @@ Future<Set<String>> basicClassNames() async {
     );
 
   final sliderCatalog = MinimalJasprCatalog().copyWith(
-    add: [SliderComponent()],
+    add: [const SliderComponent()],
   );
 
   html
@@ -261,7 +261,7 @@ Future<Set<String>> basicClassNames() async {
     );
 
   final dateTimeInputCatalog = MinimalJasprCatalog().copyWith(
-    add: [DateTimeInputComponent()],
+    add: [const DateTimeInputComponent()],
   );
 
   html
@@ -302,14 +302,19 @@ Future<Set<String>> basicClassNames() async {
     )
     ..add(
       await renderSurfaceModel(
-        buildSurfaceModel([
-          {'id': 'root', 'component': 'Card', 'child': 'content'},
-          {'id': 'content', 'component': 'Text', 'text': 'x'},
-        ], catalog: MinimalJasprCatalog().copyWith(add: [CardComponent()])),
+        buildSurfaceModel(
+          [
+            {'id': 'root', 'component': 'Card', 'child': 'content'},
+            {'id': 'content', 'component': 'Text', 'text': 'x'},
+          ],
+          catalog: MinimalJasprCatalog().copyWith(add: [const CardComponent()]),
+        ),
       ),
     );
 
-  final listCatalog = MinimalJasprCatalog().copyWith(add: [ListComponent()]);
+  final listCatalog = MinimalJasprCatalog().copyWith(
+    add: [const ListComponent()],
+  );
   for (final direction in const ['vertical', 'horizontal']) {
     html.add(
       await renderSurfaceModel(
@@ -326,7 +331,7 @@ Future<Set<String>> basicClassNames() async {
   }
 
   final dividerCatalog = MinimalJasprCatalog().copyWith(
-    add: [DividerComponent()],
+    add: [const DividerComponent()],
   );
   for (final axis in const ['horizontal', 'vertical']) {
     html.add(
@@ -338,7 +343,9 @@ Future<Set<String>> basicClassNames() async {
     );
   }
 
-  final imageCatalog = MinimalJasprCatalog().copyWith(add: [ImageComponent()]);
+  final imageCatalog = MinimalJasprCatalog().copyWith(
+    add: [const ImageComponent()],
+  );
   for (final variant in const [
     'icon',
     'avatar',
@@ -366,7 +373,7 @@ Future<Set<String>> basicClassNames() async {
       await renderSurfaceModel(
         buildSurfaceModel(
           tabsFixtureComponents(),
-          catalog: MinimalJasprCatalog().copyWith(add: [TabsComponent()]),
+          catalog: MinimalJasprCatalog().copyWith(add: [const TabsComponent()]),
         ),
       ),
     )
@@ -374,7 +381,9 @@ Future<Set<String>> basicClassNames() async {
       await renderSurfaceModel(
         buildSurfaceModel(
           modalFixtureComponents(),
-          catalog: MinimalJasprCatalog().copyWith(add: [ModalComponent()]),
+          catalog: MinimalJasprCatalog().copyWith(
+            add: [const ModalComponent()],
+          ),
         ),
       ),
     )
@@ -385,16 +394,21 @@ Future<Set<String>> basicClassNames() async {
             {'id': 'root', 'component': 'AudioPlayer', 'url': '/audio.mp3'},
           ],
           catalog: MinimalJasprCatalog().copyWith(
-            add: [AudioPlayerComponent()],
+            add: [const AudioPlayerComponent()],
           ),
         ),
       ),
     )
     ..add(
       await renderSurfaceModel(
-        buildSurfaceModel([
-          {'id': 'root', 'component': 'Video', 'url': '/video.mp4'},
-        ], catalog: MinimalJasprCatalog().copyWith(add: [VideoComponent()])),
+        buildSurfaceModel(
+          [
+            {'id': 'root', 'component': 'Video', 'url': '/video.mp4'},
+          ],
+          catalog: MinimalJasprCatalog().copyWith(
+            add: [const VideoComponent()],
+          ),
+        ),
       ),
     )
     // The fallback for a component this catalog does not implement.

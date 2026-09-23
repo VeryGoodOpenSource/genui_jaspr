@@ -17,18 +17,18 @@ Future<String> renderTabs({Map<String, Object?> data = const {}}) async =>
       await renderSurface(
         tabsFixtureComponents(firstTitle: {'path': '/firstTitle'}),
         data: data,
-        catalog: MinimalJasprCatalog().copyWith(add: [TabsComponent()]),
+        catalog: MinimalJasprCatalog().copyWith(add: [const TabsComponent()]),
       ),
     );
 
 void main() {
   group('Tabs', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = TabsApi();
+      const component = TabsComponent();
 
-      expect(api.name, 'Tabs');
+      expect(component.name, 'Tabs');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {
             'tabs': Schema.list(
@@ -75,7 +75,9 @@ void main() {
     testComponents('resets when an update removes the selected tab', (
       tester,
     ) async {
-      final catalog = MinimalJasprCatalog().copyWith(add: [TabsComponent()]);
+      final catalog = MinimalJasprCatalog().copyWith(
+        add: [const TabsComponent()],
+      );
       final processor = MessageProcessor<JasprComponent>(catalogs: [catalog])
         ..processMessages([
           A2uiMessage.fromJson({

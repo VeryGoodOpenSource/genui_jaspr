@@ -4,5 +4,5 @@ import 'package:genui_jaspr/src/catalog/basic/components/choice_picker.dart';
 import 'exercise.dart';
 
 void main() => exercise(
-  MinimalJasprCatalog().copyWith(add: [ChoicePickerComponent()]),
+  MinimalJasprCatalog().copyWith(add: [const ChoicePickerComponent()]),
 );

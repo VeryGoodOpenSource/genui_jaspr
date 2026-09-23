@@ -4,14 +4,17 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// `CheckBox`'s API, one of the basic catalog's components that `a2ui_core`
-/// does not ship. Its schema matches the A2UI spec's basic catalog, taken
-/// from Flutter's `genui` reference implementation since `a2ui_core` has none
-/// to copy it from.
-class CheckBoxApi extends ComponentApi {
+/// A checkbox with a label, bound to the data model in both directions.
+class CheckBoxComponent extends JasprComponent {
+  /// Creates a [CheckBoxComponent].
+  const CheckBoxComponent();
+
   @override
   String get name => 'CheckBox';
 
+  /// The schema from the A2UI spec's basic catalog, taken from Flutter's
+  /// `genui` reference implementation since `a2ui_core` has none to copy it
+  /// from.
   @override
   Schema get schema => Schema.combined(
     allOf: [
@@ -25,15 +28,6 @@ class CheckBoxApi extends ComponentApi {
       ),
     ],
   );
-}
-
-/// A checkbox with a label, bound to the data model in both directions.
-class CheckBoxComponent extends JasprComponent {
-  /// Creates a [CheckBoxComponent].
-  CheckBoxComponent();
-
-  @override
-  final ComponentApi api = CheckBoxApi();
 
   @override
   List<StyleRule> get styles => const [

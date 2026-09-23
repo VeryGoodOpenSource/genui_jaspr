@@ -7,20 +7,31 @@ import 'package:test/test.dart';
 
 import '../support/harness.dart';
 
-/// A component the minimal catalog does not have.
+/// The API of a component the minimal catalog does not have.
 class _DividerApi extends ComponentApi {
   @override
   String get name => 'Divider';
 
   @override
-  Schema get schema => Schema.object(properties: {});
+  Schema get schema => Schema.object(properties: {'axis': Schema.string()});
 }
 
-/// A component that overrides nothing but the two required halves, so it takes
+/// A component that declares nothing but its API and [build], so it takes
 /// [JasprComponent]'s own default for [JasprComponent.styles].
 class _BareDividerComponent extends JasprComponent {
   @override
-  final ComponentApi api = _DividerApi();
+  String get name => 'Divider';
+
+  @override
+  Schema get schema => Schema.object(properties: {});
+
+  @override
+  Component build(ComponentScope scope) => const hr();
+}
+
+/// A component whose API is defined by someone else.
+class _ExternalDividerComponent extends ExternalApiJasprComponent {
+  _ExternalDividerComponent() : super(_DividerApi());
 
   @override
   Component build(ComponentScope scope) => const hr();
@@ -45,16 +56,64 @@ class _UpperFunction extends FunctionImplementation {
 }
 
 void main() {
+  group('JasprComponent', () {
+    test('is its own API', () {
+      final component = _BareDividerComponent();
+
+      expect(component, isA<ComponentApi>());
+      expect(component.name, 'Divider');
+      expect(component.schema.value, Schema.object(properties: {}).value);
+    });
+  });
+
+  group('ExternalApiJasprComponent', () {
+    test('takes its name and schema from the API it wraps', () {
+      final component = _ExternalDividerComponent();
+
+      expect(component.api, isA<_DividerApi>());
+      expect(component.name, 'Divider');
+      expect(
+        component.schema.value,
+        Schema.object(properties: {'axis': Schema.string()}).value,
+      );
+    });
+
+    test('renders from its own build', () async {
+      final html = await renderSurface(
+        [
+          {'id': 'root', 'component': 'Divider'},
+        ],
+        catalog: MinimalJasprCatalog().copyWith(
+          add: [_ExternalDividerComponent()],
+        ),
+      );
+
+      expect(html, '<hr/>');
+    });
+
+    test('backs JasprComponent.inline', () {
+      final component = JasprComponent.inline(
+        _DividerApi(),
+        (scope) => const hr(),
+      );
+
+      expect(component, isA<ExternalApiJasprComponent>());
+      expect(component.name, 'Divider');
+    });
+  });
+
   group('Catalog.styles', () {
     test('gathers the rules of every component in the catalog', () {
-      final catalog = MinimalJasprCatalog().copyWith(add: [IconComponent()]);
+      final catalog = MinimalJasprCatalog().copyWith(
+        add: [const IconComponent()],
+      );
 
       expect(_selectorsOf(catalog.styles), contains('.a2ui-icon'));
     });
 
     test('a derivation that drops a component drops its rules too', () {
       final catalog = MinimalJasprCatalog()
-          .copyWith(add: [IconComponent()])
+          .copyWith(add: [const IconComponent()])
           .copyWith(remove: ['Icon']);
 
       expect(_selectorsOf(catalog.styles), isNot(contains('.a2ui-icon')));

@@ -5,11 +5,15 @@ import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:universal_web/web.dart' as web;
 
-/// `Modal`'s API from the A2UI v0.9 basic catalog.
-class ModalApi extends ComponentApi {
+/// Opens one child in a native HTML dialog when its trigger child is clicked.
+class ModalComponent extends JasprComponent {
+  /// Creates a [ModalComponent].
+  const ModalComponent();
+
   @override
   String get name => 'Modal';
 
+  /// The schema from the A2UI v0.9 basic catalog.
   @override
   Schema get schema => Schema.object(
     properties: {
@@ -18,15 +22,6 @@ class ModalApi extends ComponentApi {
     },
     required: ['trigger', 'content'],
   );
-}
-
-/// Opens one child in a native HTML dialog when its trigger child is clicked.
-class ModalComponent extends JasprComponent {
-  /// Creates a [ModalComponent].
-  ModalComponent();
-
-  @override
-  final ComponentApi api = ModalApi();
 
   @override
   List<StyleRule> get styles => const [

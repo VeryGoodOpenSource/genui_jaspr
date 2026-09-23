@@ -10,11 +10,11 @@ import '../support/render.dart';
 void main() {
   group('Video', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = VideoApi();
+      const component = VideoComponent();
 
-      expect(api.name, 'Video');
+      expect(component.name, 'Video');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {'url': CommonSchemas.dynamicString},
           required: ['url'],
@@ -33,7 +33,9 @@ void main() {
             },
           ],
           data: {'/video/url': '/demo.mp4'},
-          catalog: MinimalJasprCatalog().copyWith(add: [VideoComponent()]),
+          catalog: MinimalJasprCatalog().copyWith(
+            add: [const VideoComponent()],
+          ),
         ),
       );
 

@@ -16,7 +16,7 @@ import '../support/harness.dart';
 
 ({SurfaceModel<JasprComponent> surface, List<A2uiClientAction> actions})
 modalSurface() {
-  final catalog = MinimalJasprCatalog().copyWith(add: [ModalComponent()]);
+  final catalog = MinimalJasprCatalog().copyWith(add: [const ModalComponent()]);
   final actions = <A2uiClientAction>[];
   final surface = buildSurfaceModel(
     modalFixtureComponents(),
@@ -30,7 +30,7 @@ modalSurface() {
 }
 
 SurfaceModel<JasprComponent> surfaceWithTabs() {
-  final catalog = MinimalJasprCatalog().copyWith(add: [TabsComponent()]);
+  final catalog = MinimalJasprCatalog().copyWith(add: [const TabsComponent()]);
   return buildSurfaceModel(tabsFixtureComponents(), catalog: catalog);
 }
 

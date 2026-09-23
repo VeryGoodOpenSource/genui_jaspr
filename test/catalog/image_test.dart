@@ -16,18 +16,18 @@ Future<String> renderImage(
       {'id': 'root', 'component': 'Image', ...extra},
     ],
     data: data,
-    catalog: MinimalJasprCatalog().copyWith(add: [ImageComponent()]),
+    catalog: MinimalJasprCatalog().copyWith(add: [const ImageComponent()]),
   ),
 );
 
 void main() {
   group('Image', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = ImageApi();
+      const component = ImageComponent();
 
-      expect(api.name, 'Image');
+      expect(component.name, 'Image');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {
             'url': CommonSchemas.dynamicString,

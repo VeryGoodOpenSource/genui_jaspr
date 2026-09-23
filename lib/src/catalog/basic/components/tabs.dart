@@ -7,11 +7,15 @@ import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 import 'package:universal_web/web.dart' as web;
 
-/// `Tabs`' API from the A2UI v0.9 basic catalog.
-class TabsApi extends ComponentApi {
+/// Shows one child at a time behind a row of tab buttons.
+class TabsComponent extends JasprComponent {
+  /// Creates a [TabsComponent].
+  const TabsComponent();
+
   @override
   String get name => 'Tabs';
 
+  /// The schema from the A2UI v0.9 basic catalog.
   @override
   Schema get schema => Schema.object(
     properties: {
@@ -29,15 +33,6 @@ class TabsApi extends ComponentApi {
     },
     required: ['tabs'],
   );
-}
-
-/// Shows one child at a time behind a row of tab buttons.
-class TabsComponent extends JasprComponent {
-  /// Creates a [TabsComponent].
-  TabsComponent();
-
-  @override
-  final ComponentApi api = TabsApi();
 
   @override
   List<StyleRule> get styles => const [

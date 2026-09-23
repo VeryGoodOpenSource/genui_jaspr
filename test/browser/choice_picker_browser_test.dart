@@ -16,7 +16,7 @@ SurfaceModel<JasprComponent> surfaceWith(
   String surfaceId = 'main',
 }) {
   final catalog = MinimalJasprCatalog().copyWith(
-    add: [ChoicePickerComponent()],
+    add: [const ChoicePickerComponent()],
   );
   final processor = MessageProcessor<JasprComponent>(catalogs: [catalog])
     ..processMessages([

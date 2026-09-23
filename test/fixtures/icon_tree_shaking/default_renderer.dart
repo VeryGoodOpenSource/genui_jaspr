@@ -5,7 +5,7 @@ import 'package:genui_jaspr/genui_jaspr.dart';
 import 'package:jaspr/jaspr.dart';
 
 void main() {
-  final icon = IconComponent();
+  const icon = IconComponent();
   final name = DateTime.now().millisecondsSinceEpoch == 0
       ? 'add'
       : 'accountCircle';

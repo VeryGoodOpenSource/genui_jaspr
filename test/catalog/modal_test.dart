@@ -15,11 +15,11 @@ import '../support/render.dart';
 void main() {
   group('Modal', () {
     test('exposes the A2UI v0.9 API', () {
-      final api = ModalApi();
+      const component = ModalComponent();
 
-      expect(api.name, 'Modal');
+      expect(component.name, 'Modal');
       expect(
-        api.schema.value,
+        component.schema.value,
         Schema.object(
           properties: {
             'trigger': CommonSchemas.componentId,
@@ -34,7 +34,9 @@ void main() {
       final html = normalizeHtml(
         await renderSurface(
           modalFixtureComponents(),
-          catalog: MinimalJasprCatalog().copyWith(add: [ModalComponent()]),
+          catalog: MinimalJasprCatalog().copyWith(
+            add: [const ModalComponent()],
+          ),
         ),
       );
 
@@ -62,7 +64,7 @@ void main() {
       final surface = buildSurfaceModel(
         modalFixtureComponents(),
         onAction: actions.add,
-        catalog: MinimalJasprCatalog().copyWith(add: [ModalComponent()]),
+        catalog: MinimalJasprCatalog().copyWith(add: [const ModalComponent()]),
       );
 
       tester.pumpComponent(surfaceComponent(surface));

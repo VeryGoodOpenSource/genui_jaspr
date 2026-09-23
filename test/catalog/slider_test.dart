@@ -16,7 +16,7 @@ Future<String> renderSlider(
   await renderSurface(
     components,
     data: data,
-    catalog: MinimalJasprCatalog().copyWith(add: [SliderComponent()]),
+    catalog: MinimalJasprCatalog().copyWith(add: [const SliderComponent()]),
   ),
 );
 
@@ -128,7 +128,7 @@ void main() {
       ) async {
         final captured = await captureScope(
           tester,
-          SliderApi(),
+          const SliderComponent(),
           [
             {
               'id': 'root',
@@ -155,7 +155,7 @@ void main() {
       ) async {
         final captured = await captureScope(
           tester,
-          SliderApi(),
+          const SliderComponent(),
           [
             {
               'id': 'root',
@@ -172,7 +172,7 @@ void main() {
       });
 
       testComponents('a literal value provides no setter', (tester) async {
-        final captured = await captureScope(tester, SliderApi(), [
+        final captured = await captureScope(tester, const SliderComponent(), [
           {'id': 'root', 'component': 'Slider', 'value': 5},
         ]);
 

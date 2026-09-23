@@ -4,14 +4,21 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// `Slider`'s API, one of the basic catalog's components that `a2ui_core`
-/// does not ship. Its schema matches the A2UI spec's basic catalog, taken
-/// from Flutter's `genui` reference implementation since `a2ui_core` has none
-/// to copy it from.
-class SliderApi extends ComponentApi {
+/// A range input, bound to the data model in both directions.
+///
+/// Inputs bind through `ComponentScope.setter`, which already turns `NaN`
+/// into null, so this gets that for free the same way `TextField`'s number
+/// variant does.
+class SliderComponent extends JasprComponent {
+  /// Creates a [SliderComponent].
+  const SliderComponent();
+
   @override
   String get name => 'Slider';
 
+  /// The schema from the A2UI spec's basic catalog, taken from Flutter's
+  /// `genui` reference implementation since `a2ui_core` has none to copy it
+  /// from.
   @override
   Schema get schema => Schema.combined(
     allOf: [
@@ -33,19 +40,6 @@ class SliderApi extends ComponentApi {
       ),
     ],
   );
-}
-
-/// A range input, bound to the data model in both directions.
-///
-/// Inputs bind through `ComponentScope.setter`, which already turns `NaN`
-/// into null, so this gets that for free the same way `TextField`'s number
-/// variant does.
-class SliderComponent extends JasprComponent {
-  /// Creates a [SliderComponent].
-  SliderComponent();
-
-  @override
-  final ComponentApi api = SliderApi();
 
   @override
   List<StyleRule> get styles => const [

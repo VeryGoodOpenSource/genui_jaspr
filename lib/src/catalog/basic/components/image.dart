@@ -4,11 +4,15 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// `Image`'s API from the A2UI v0.9 basic catalog.
-class ImageApi extends ComponentApi {
+/// Displays an image from an A2UI-provided URL.
+class ImageComponent extends JasprComponent {
+  /// Creates an [ImageComponent].
+  const ImageComponent();
+
   @override
   String get name => 'Image';
 
+  /// The schema from the A2UI v0.9 basic catalog.
   @override
   Schema get schema => Schema.object(
     properties: {
@@ -30,15 +34,6 @@ class ImageApi extends ComponentApi {
     },
     required: ['url'],
   );
-}
-
-/// Displays an image from an A2UI-provided URL.
-class ImageComponent extends JasprComponent {
-  /// Creates an [ImageComponent].
-  ImageComponent();
-
-  @override
-  final ComponentApi api = ImageApi();
 
   /// The fit is absent here because [build] writes it inline, the model
   /// choosing it per instance.

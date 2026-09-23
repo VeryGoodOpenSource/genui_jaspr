@@ -5,12 +5,9 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 /// Lays its children out vertically.
-class ColumnComponent extends JasprComponent {
+class ColumnComponent extends ExternalApiJasprComponent {
   /// Creates a [ColumnComponent].
-  ColumnComponent();
-
-  @override
-  final ComponentApi api = MinimalColumnApi();
+  ColumnComponent() : super(MinimalColumnApi());
 
   /// Only the shared spacing. Direction and alignment are written inline by
   /// [build], because the model chooses them per instance.

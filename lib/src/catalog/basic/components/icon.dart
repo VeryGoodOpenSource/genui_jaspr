@@ -69,25 +69,6 @@ const _standardIconNames = [
   'warning',
 ];
 
-/// `Icon`'s API from the pinned A2UI v0.9 basic catalog.
-class IconApi extends ComponentApi {
-  @override
-  String get name => 'Icon';
-
-  @override
-  Schema get schema => Schema.object(
-    properties: {
-      'name': Schema.combined(
-        oneOf: [
-          Schema.string(enumValues: _standardIconNames),
-          CommonSchemas.dataBinding,
-        ],
-      ),
-    },
-    required: ['name'],
-  );
-}
-
 // Generated from the Material path constants in jaspr_icons 2.2.1. The source
 // package is MIT licensed and the Google Material Icons are Apache-2.0. See
 // NOTICE and LICENSES/.
@@ -200,7 +181,7 @@ typedef IconRenderer = Component Function(String name);
 /// Displays an icon from the pinned A2UI v0.9 standard set.
 abstract final class IconComponent extends JasprComponent {
   /// Creates an [IconComponent] backed by the built-in Material SVG paths.
-  factory IconComponent() = _StandardIconComponent;
+  const factory IconComponent() = _StandardIconComponent;
 
   const IconComponent._();
 
@@ -208,8 +189,25 @@ abstract final class IconComponent extends JasprComponent {
   ///
   /// This constructor does not reference the built-in SVG path table, allowing
   /// a compiled app that provides its own renderer to tree-shake that data.
-  factory IconComponent.withRenderer(IconRenderer renderer) =
+  const factory IconComponent.withRenderer(IconRenderer renderer) =
       _CustomIconComponent;
+
+  @override
+  String get name => 'Icon';
+
+  /// The schema from the pinned A2UI v0.9 basic catalog.
+  @override
+  Schema get schema => Schema.object(
+    properties: {
+      'name': Schema.combined(
+        oneOf: [
+          Schema.string(enumValues: _standardIconNames),
+          CommonSchemas.dataBinding,
+        ],
+      ),
+    },
+    required: ['name'],
+  );
 
   @override
   List<StyleRule> get styles => const [
@@ -227,10 +225,7 @@ abstract final class IconComponent extends JasprComponent {
 }
 
 final class _StandardIconComponent extends IconComponent {
-  _StandardIconComponent() : super._();
-
-  @override
-  final ComponentApi api = IconApi();
+  const _StandardIconComponent() : super._();
 
   @override
   Component build(ComponentScope scope) {
@@ -261,12 +256,9 @@ final class _StandardIconComponent extends IconComponent {
 }
 
 final class _CustomIconComponent extends IconComponent {
-  _CustomIconComponent(this._renderer) : super._();
+  const _CustomIconComponent(this._renderer) : super._();
 
   final IconRenderer _renderer;
-
-  @override
-  final ComponentApi api = IconApi();
 
   @override
   Component build(ComponentScope scope) {

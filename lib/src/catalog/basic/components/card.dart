@@ -4,25 +4,20 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
-/// `Card`'s API from the A2UI v0.9 basic catalog.
-class CardApi extends ComponentApi {
+/// A card-like container around one child component.
+class CardComponent extends JasprComponent {
+  /// Creates a [CardComponent].
+  const CardComponent();
+
   @override
   String get name => 'Card';
 
+  /// The schema from the A2UI v0.9 basic catalog.
   @override
   Schema get schema => Schema.object(
     properties: {'child': CommonSchemas.componentId},
     required: ['child'],
   );
-}
-
-/// A card-like container around one child component.
-class CardComponent extends JasprComponent {
-  /// Creates a [CardComponent].
-  CardComponent();
-
-  @override
-  final ComponentApi api = CardApi();
 
   /// A transparent surface plus an outline keeps nested cards distinct
   /// without tracking their depth or alternating background colours.

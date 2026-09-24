@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:genkit/genkit.dart';
 import 'package:genkit_shelf/genkit_shelf.dart';
 import 'package:genui_jaspr_example/prompt.dart';
@@ -34,8 +36,12 @@ Agent<dynamic> chatAgent(
 /// all come from `genkit_shelf`, so nothing here has to know how a frame looks.
 /// Mount it in front of the page: `main.server.dart` routes everything under
 /// [chatPath] here and lets the rest fall through to the rendered app.
+///
+/// A turn that fails is logged to stderr with its cause and stack trace.
+/// `genkit_shelf` tells the browser only "Internal server error", so without
+/// this the reason a reply broke would be written down nowhere.
 Handler chatHandler(Agent<dynamic> agent) {
-  final turn = shelfHandler(agent.action);
+  final turn = shelfHandler(_loggingFailures(agent.action));
   final snapshot = shelfHandler(agent.getSnapshotDataAction);
   final abort = shelfHandler(agent.abortAgentAction);
 
@@ -45,4 +51,57 @@ Handler chatHandler(Agent<dynamic> agent) {
     '$chatPath/abort' => abort(request),
     _ => Response.notFound('No such route.'),
   };
+}
+
+/// The agent's turn [action], writing any failure to stderr.
+///
+/// The failure has to be caught here, around the action itself. A model call
+/// that breaks does not throw out of the agent: the turn ends with its error in
+/// [AgentOutput.error], and `genkit_shelf` then sends the browser a frame that
+/// hides the cause. The error still carries the original exception at this
+/// point, stack trace included, so this is the last place it can be written
+/// down.
+Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> _loggingFailures(
+  Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> action,
+) {
+  return Action(
+    name: action.name,
+    actionType: action.actionType,
+    description: action.description,
+    inputSchema: action.inputSchema,
+    outputSchema: action.outputSchema,
+    streamSchema: action.streamSchema,
+    initSchema: action.initSchema,
+    metadata: action.metadata,
+    fn: (input, context) async {
+      try {
+        final output = await action.fn(input, context);
+        final error = output.error;
+        if (error != null) {
+          final cause = error.details;
+          _logFailure(
+            '${error.status}: ${error.message}',
+            cause: cause == error.message ? null : cause,
+            stackTrace: cause is Error ? cause.stackTrace : null,
+          );
+        }
+        return output;
+      } catch (error, stackTrace) {
+        // What the agent does throw, such as a session the request does not
+        // own, `genkit_shelf` maps to an HTTP status. Log that too.
+        _logFailure('$error', stackTrace: stackTrace);
+        rethrow;
+      }
+    },
+  );
+}
+
+void _logFailure(String summary, {Object? cause, StackTrace? stackTrace}) {
+  stderr.writeln(
+    [
+      'Chat turn failed: $summary',
+      if (cause != null) 'Cause: $cause',
+      ?stackTrace,
+    ].join('\n'),
+  );
 }

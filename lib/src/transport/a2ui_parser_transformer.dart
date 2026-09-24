@@ -56,14 +56,41 @@ class _ParserStream {
   }
 
   void _onDone() {
-    // Whatever is left is prose, unless it is only the whitespace a model puts
-    // after its last message, which the separator rule drops everywhere else.
-    if (_buffer.isNotEmpty &&
-        !(_lastEventWasMessage && _buffer.trim().isEmpty)) {
-      _emitText(_buffer);
-    }
+    final leftover = _buffer;
     _buffer = '';
+    if (_isUnfinishedMessage(leftover)) {
+      // The model stopped part-way through a message, cut off by a safety
+      // filter, a token limit, or a failed call. Printed as prose it would
+      // put raw JSON in front of the user, so it is reported as the broken
+      // message it is.
+      _controller.addError(
+        A2uiValidationException(
+          'The reply ended part-way through an A2UI message',
+          json: leftover,
+        ),
+      );
+    } else if (leftover.isNotEmpty &&
+        !(_lastEventWasMessage && leftover.trim().isEmpty)) {
+      // Whatever is left is prose, unless it is only the whitespace a model
+      // puts after its last message, which the separator rule drops
+      // everywhere else.
+      _emitText(leftover);
+    }
     unawaited(_controller.close());
+  }
+
+  /// Whether [leftover], what the buffer still holds when the stream ends, is
+  /// the start of a message rather than prose.
+  ///
+  /// The buffer only ever holds back something that opens like a message, so
+  /// [leftover] begins with a fence or a brace when it is not plain text. A
+  /// `json` fence says so outright. Anything else counts only once it names a
+  /// message, so a reply that ends on a stray brace or an unrelated code
+  /// block still shows it.
+  bool _isUnfinishedMessage(String leftover) {
+    if (leftover.startsWith('```json')) return true;
+    if (!leftover.startsWith('```') && !leftover.startsWith('{')) return false;
+    return _messageKeys.any((key) => leftover.contains('"$key"'));
   }
 
   void _processBuffer() {

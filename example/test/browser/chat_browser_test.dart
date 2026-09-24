@@ -9,6 +9,10 @@ import 'package:jaspr_test/client_test.dart';
 /// A model reply carrying one A2UI message, fenced the way the parser expects.
 String fenced(String json) => '```json\n$json\n```\n';
 
+/// What the user is shown when a reply fails, whatever the cause.
+const plainFailureText =
+    'The model stopped before finishing. Try again, or ask a different way.';
+
 void main() {
   group('ChatView in a browser', () {
     testClient('typing and sending renders the streamed reply', (tester) async {
@@ -109,10 +113,39 @@ void main() {
       await tester.input(find.tag('input'), value: 'hi');
       await tester.click(find.tag('button'));
 
-      expect(find.textContaining('model unavailable'), findsOneComponent);
+      expect(find.text(plainFailureText), findsOneComponent);
+      // The raw failure is for developers, in the console, not for the user.
+      expect(find.textContaining('model unavailable'), findsNothing);
       // The user's own turn stays; the failed reply leaves no empty bubble.
       expect(find.text('hi'), findsOneComponent);
       expect(find.byType(Surface), findsNothing);
+    });
+
+    testClient('a reply cut off mid-message keeps its prose, not the JSON', (
+      tester,
+    ) async {
+      // What Gemini does when its recitation filter stops a reply: the prose
+      // arrives, the message starts, and then the call fails.
+      tester.pumpComponent(
+        ChatView(
+          send: (prompt) async* {
+            yield 'Here is Paris.\n\n```json\n';
+            yield '{"version":"v0.9","updateComponents":{"surfaceId":"s",'
+                '"components":[{"id":"root","component":"Text",'
+                '"text":"The 12th-';
+            throw StateError('GenkitException: Internal server error');
+          },
+        ),
+      );
+
+      await tester.input(find.tag('input'), value: 'Tell me about Paris');
+      await tester.click(find.tag('button'));
+
+      expect(find.textContaining('Here is Paris.'), findsOneComponent);
+      expect(find.textContaining('ended part-way'), findsOneComponent);
+      expect(find.text(plainFailureText), findsOneComponent);
+      expect(find.textContaining('updateComponents'), findsNothing);
+      expect(find.textContaining('GenkitException'), findsNothing);
     });
   });
 }

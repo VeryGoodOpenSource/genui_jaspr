@@ -187,7 +187,9 @@ class _ChatViewState extends State<ChatView> {
         // cause into the same 500. So the user gets a plain message, and the
         // failure itself goes to the console for whoever is debugging.
         _error = failedTurnMessage;
-        web.console.error('Reply failed: $failure'.toJS);
+        web.console.error(
+          'Reply failed: $failure'.toJS,
+        ); // coverage:ignore-line
       }
       // A turn with neither words nor a surface would render as an empty
       // bubble, which is what a failed request used to leave behind.

@@ -41,7 +41,7 @@ Agent<dynamic> chatAgent(
 /// `genkit_shelf` tells the browser only "Internal server error", so without
 /// this the reason a reply broke would be written down nowhere.
 Handler chatHandler(Agent<dynamic> agent) {
-  final turn = shelfHandler(_loggingFailures(agent.action));
+  final turn = shelfHandler(_withFailureLogging(agent.action));
   final snapshot = shelfHandler(agent.getSnapshotDataAction);
   final abort = shelfHandler(agent.abortAgentAction);
 
@@ -67,7 +67,8 @@ Handler chatHandler(Agent<dynamic> agent) {
 ///
 /// Genkit's [Action] has no `copyWith`, so the wrapper copies each field.
 /// Anything it leaves out is lost to `genkit_shelf`.
-Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> _loggingFailures(
+Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit>
+_withFailureLogging(
   Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> action,
 ) {
   return Action(
@@ -86,6 +87,8 @@ Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> _loggingFailures(
         final cause = error.details;
         _logFailure(
           '${error.status}: ${error.message}',
+          // With nothing underneath, Genkit fills the details in with the
+          // message itself, which would only repeat the summary.
           cause: cause == error.message ? null : cause,
           stackTrace: cause is Error ? cause.stackTrace : null,
         );

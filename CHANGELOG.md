@@ -29,6 +29,13 @@ First release. Renders A2UI generative user interfaces in Jaspr, building on
   declaring its name and schema alongside `build`. `ExternalApiJasprComponent`
   renders an API defined elsewhere, as the minimal components do with
   `a2ui_core`'s. `copyWith` derives a catalog from an existing one.
+- `BasicJasprCatalog` implements the complete A2UI v0.9 standard catalog: all
+  18 components, all 14 functions, and its theme. `Icon` renders the 59 names
+  the catalog permits as inline SVG, with no font, network request, or icon
+  package, and those paths are tree-shaken from a build that uses only the
+  minimal catalog. `locale` sets the locale for number, currency, date, and
+  plural formatting, and `urlOpener` lets an app restrict what `openUrl` will
+  navigate to.
 - `ComponentScope` hands a builder its resolved properties, its children, and a
   way to report errors. An action obtained through it never throws out of a
   click handler. Its `instanceId` is unique to each rendered instance across
@@ -42,6 +49,8 @@ First release. Renders A2UI generative user interfaces in Jaspr, building on
   its theme as CSS custom properties.
 - `A2uiParserTransformer` turns a model's text stream into prose and A2UI
   messages, buffering across chunk boundaries, for apps that want the raw events.
+  A reply that ends part-way through a message reports it as an error instead
+  of showing the raw JSON as prose.
 - The example app serves a server-rendered shell with the conversation as a
   `@client` component, and a Genkit agent served by `genkit_shelf` that keeps
   each conversation's history in a session store.

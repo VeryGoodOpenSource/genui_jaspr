@@ -1,5 +1,12 @@
 # genui_jaspr
 
+[![ci][ci_badge]][ci_link]
+[![pub package][pub_badge]][pub_link]
+[![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
+[![License: MIT][license_badge]][license_link]
+
+Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
+
 Render [A2UI](https://a2ui.org) generative user interfaces in
 [Jaspr](https://jaspr.site), so your web app can offer a generative UI without
 shipping Flutter web.
@@ -400,3 +407,13 @@ has the test commands and explains how the suites fit together.
 - A2UI protocol: https://a2ui.org
 - Jaspr: https://jaspr.site
 - Flutter's genui: https://github.com/flutter/genui
+
+[ci_badge]: https://github.com/brianegan/genui_jaspr/actions/workflows/main.yaml/badge.svg
+[ci_link]: https://github.com/brianegan/genui_jaspr/actions/workflows/main.yaml
+[license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[license_link]: https://opensource.org/licenses/MIT
+[pub_badge]: https://img.shields.io/pub/v/genui_jaspr.svg
+[pub_link]: https://pub.dev/packages/genui_jaspr
+[very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
+[very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
+[very_good_ventures_link]: https://verygood.ventures

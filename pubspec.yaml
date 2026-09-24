@@ -3,7 +3,13 @@ description: >-
   Render A2UI generative user interfaces in Jaspr, so a web app can offer a
   generative UI without shipping Flutter web.
 version: 0.1.0
-repository: https://github.com/brianegan/genui_jaspr
+repository: https://github.com/VeryGoodOpenSource/genui_jaspr
+topics:
+  - jaspr
+  - a2ui
+  - genui
+  - generative-ai
+  - web
 
 environment:
   sdk: ^3.12.0

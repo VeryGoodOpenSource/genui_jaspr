@@ -11,6 +11,10 @@ import 'package:genui_jaspr/src/transport/generation_events.dart';
 /// network happens to break them, often in the middle of a JSON object. This
 /// buffers until a message is complete, so a surface can be updated as soon
 /// as one arrives rather than after the whole response.
+///
+/// A stream that ends part-way through a message, because a safety filter or
+/// a token limit stopped the model or the call failed, reports the fragment as
+/// an [A2uiValidationException] rather than showing it as prose.
 class A2uiParserTransformer
     extends StreamTransformerBase<String, GenerationEvent> {
   /// Creates an [A2uiParserTransformer].
@@ -82,11 +86,12 @@ class _ParserStream {
   /// Whether [leftover], what the buffer still holds when the stream ends, is
   /// the start of a message rather than prose.
   ///
-  /// The buffer only ever holds back something that opens like a message, so
-  /// [leftover] begins with a fence or a brace when it is not plain text. A
-  /// `json` fence says so outright. Anything else counts only once it names a
-  /// message, so a reply that ends on a stray brace or an unrelated code
-  /// block still shows it.
+  /// Besides a possible message, which opens with a fence or a brace, the
+  /// buffer can hold back a partial fence marker or the whitespace after a
+  /// message. Neither is a message, and both are left to the prose rule. A
+  /// `json` fence says it is a message outright. A brace or any other fence
+  /// counts only once it names a message, so a reply that ends on a stray
+  /// brace or an unrelated code block still shows it.
   bool _isUnfinishedMessage(String leftover) {
     if (leftover.startsWith('```json')) return true;
     if (!leftover.startsWith('```') && !leftover.startsWith('{')) return false;

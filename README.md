@@ -228,10 +228,10 @@ just as well as in the browser.
 nothing is parsed until something listens. Three kinds of event arrive:
 `GenUiText` carries a piece of prose, `GenUiSurface` carries a surface the model
 has just opened, once, and `GenUiError` carries a message the model got wrong,
-such as a component the catalog lacks or a surface created twice, already in the
-shape `a2uiErrorMessage` sends back to the model. The stream carries on after a
-`GenUiError`. A failure of the model call itself is an error on the stream,
-which then ends.
+such as a component the catalog lacks, a surface created twice, or a message cut
+off when the reply ended, already in the shape `a2uiErrorMessage` sends back to
+the model. The stream carries on after a `GenUiError`. A failure of the model
+call itself is an error on the stream, which then ends.
 
 `ReplyBuilder` is the fold most apps want: it turns the events into a `Reply`
 with `text`, `surfaces`, `errors`, `failure`, and `isComplete`, and rebuilds its

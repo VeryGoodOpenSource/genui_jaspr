@@ -42,9 +42,6 @@ class CapturedStderr extends Fake implements Stdout {
   void clear() => _written.clear();
 
   @override
-  void write(Object? object) => _written.write(object);
-
-  @override
   void writeln([Object? object = '']) => _written.writeln(object);
 }
 

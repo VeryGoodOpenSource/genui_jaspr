@@ -229,7 +229,7 @@ void main() {
         expect(outcome.errors, [isA<A2uiValidationException>()]);
       });
 
-      test('reports it after a failure of the source too', () async {
+      test('reports a fenced one after a failure of the source', () async {
         final failure = StateError('the model call broke');
         final outcome = await parseAll([
           'Here you go.\n\n```json\n',
@@ -237,6 +237,20 @@ void main() {
         ], thenFail: failure);
 
         expect(textsOf(outcome.events), ['Here you go.']);
+        expect(outcome.errors, [
+          same(failure),
+          isA<A2uiValidationException>(),
+        ]);
+      });
+
+      test('reports a bare one after a failure of the source', () async {
+        final failure = StateError('the model call broke');
+        final outcome = await parseAll([
+          'Here you go: ',
+          fragment,
+        ], thenFail: failure);
+
+        expect(textsOf(outcome.events), ['Here you go:']);
         expect(outcome.errors, [
           same(failure),
           isA<A2uiValidationException>(),

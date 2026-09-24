@@ -59,8 +59,14 @@ Handler chatHandler(Agent<dynamic> agent) {
 /// that breaks does not throw out of the agent: the turn ends with its error in
 /// [AgentOutput.error], and `genkit_shelf` then sends the browser a frame that
 /// hides the cause. The error still carries the original exception at this
-/// point, stack trace included, so this is the last place it can be written
-/// down.
+/// point, so this is the last place it can be written down. Genkit keeps the
+/// exception that caused a failure but not the stack trace it was thrown with,
+/// so a stack is logged only when that exception is an [Error], which carries
+/// its own. A model plugin's crash, such as the null check Gemini's recitation
+/// stop trips, is one.
+///
+/// Genkit's [Action] has no `copyWith`, so the wrapper copies each field.
+/// Anything it leaves out is lost to `genkit_shelf`.
 Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> _loggingFailures(
   Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> action,
 ) {
@@ -74,24 +80,17 @@ Action<AgentInput, AgentOutput, AgentStreamChunk, AgentInit> _loggingFailures(
     initSchema: action.initSchema,
     metadata: action.metadata,
     fn: (input, context) async {
-      try {
-        final output = await action.fn(input, context);
-        final error = output.error;
-        if (error != null) {
-          final cause = error.details;
-          _logFailure(
-            '${error.status}: ${error.message}',
-            cause: cause == error.message ? null : cause,
-            stackTrace: cause is Error ? cause.stackTrace : null,
-          );
-        }
-        return output;
-      } catch (error, stackTrace) {
-        // What the agent does throw, such as a session the request does not
-        // own, `genkit_shelf` maps to an HTTP status. Log that too.
-        _logFailure('$error', stackTrace: stackTrace);
-        rethrow;
+      final output = await action.fn(input, context);
+      final error = output.error;
+      if (error != null) {
+        final cause = error.details;
+        _logFailure(
+          '${error.status}: ${error.message}',
+          cause: cause == error.message ? null : cause,
+          stackTrace: cause is Error ? cause.stackTrace : null,
+        );
       }
+      return output;
     },
   );
 }

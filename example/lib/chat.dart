@@ -6,6 +6,7 @@ import 'package:genui_jaspr_example/interaction.dart';
 import 'package:genui_jaspr_example/server/chat_path.dart';
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
+import 'package:universal_web/js_interop.dart';
 import 'package:universal_web/web.dart' as web;
 
 /// One entry in the transcript: something the user said, or a model's reply.
@@ -23,6 +24,10 @@ class Turn {
   /// [ReplyBuilder] folds into a [Reply]. Null for the user's turns.
   final Stream<GenUiEvent>? events;
 }
+
+/// What the user is shown when a reply fails, whatever the cause.
+const String failedTurnMessage =
+    'The model stopped before finishing. Try again, or ask a different way.';
 
 /// Streams the model's reply to [prompt] as text chunks.
 ///
@@ -177,7 +182,15 @@ class _ChatViewState extends State<ChatView> {
     setState(() {
       _busy = false;
       final failure = reply.failure;
-      if (failure != null) _error = '$failure';
+      if (failure != null) {
+        // The browser never learns why a call failed: the server turns every
+        // cause into the same 500. So the user gets a plain message, and the
+        // failure itself goes to the console for whoever is debugging.
+        _error = failedTurnMessage;
+        // coverage:ignore-start
+        web.console.error('Reply failed: $failure'.toJS);
+        // coverage:ignore-end
+      }
       // A turn with neither words nor a surface would render as an empty
       // bubble, which is what a failed request used to leave behind.
       if (reply.isEmpty) _turns.remove(turn);

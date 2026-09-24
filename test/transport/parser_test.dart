@@ -16,11 +16,35 @@ Future<List<GenerationEvent>> parse(List<String> chunks) {
   ).transform(const A2uiParserTransformer()).toList();
 }
 
+/// As [parse], collecting errors alongside events so a test can see both, and
+/// failing the source with [thenFail] after the last chunk when it is given.
+Future<({List<GenerationEvent> events, List<Object> errors})> parseAll(
+  List<String> chunks, {
+  Object? thenFail,
+}) async {
+  final source = StreamController<String>();
+  final events = <GenerationEvent>[];
+  final errors = <Object>[];
+  final done = Completer<void>();
+  source.stream
+      .transform(const A2uiParserTransformer())
+      .listen(events.add, onError: errors.add, onDone: done.complete);
+  chunks.forEach(source.add);
+  if (thenFail != null) source.addError(thenFail);
+  await source.close();
+  await done.future;
+  return (events: events, errors: errors);
+}
+
 List<String> textsOf(List<GenerationEvent> events) => events
     .whereType<TextEvent>()
     .map((event) => event.text.trim())
     .where((text) => text.isNotEmpty)
     .toList();
+
+/// Every piece of prose joined back together, however the parser split it.
+String proseOf(List<GenerationEvent> events) =>
+    events.whereType<TextEvent>().map((event) => event.text).join();
 
 List<A2uiMessage> messagesOf(List<GenerationEvent> events) =>
     events.whereType<A2uiMessageEvent>().map((event) => event.message).toList();
@@ -183,23 +207,77 @@ void main() {
       expect(textsOf(events), ['{not json, just braces}']);
     });
 
-    test(
-      'emits a half-finished message as text when the stream ends',
-      () async {
-        // The model stopped mid-object. Holding the buffer back forever would
-        // swallow whatever it did manage to write.
-        final events = await parse([
-          'Here you go: ',
-          '{"version":"v0.9","createSurface"',
-        ]);
+    group('a stream that ends part-way through a message', () {
+      // A model cut off by a safety filter or a token limit stops mid-object.
+      // The fragment is a broken message, not prose, so it is reported rather
+      // than printed, and the prose before it is kept.
+      const fragment =
+          '{"version":"v0.9","updateComponents":{"surfaceId":"s",'
+          '"components":[{"id":"root","component":"Text","text":"The 12th-';
 
-        expect(messagesOf(events), isEmpty);
-        expect(textsOf(events), [
-          'Here you go:',
-          '{"version":"v0.9","createSurface"',
+      test('reports an unclosed fenced message and keeps the prose', () async {
+        final outcome = await parseAll(['Here you go.\n\n```json\n$fragment']);
+
+        expect(textsOf(outcome.events), ['Here you go.']);
+        expect(outcome.errors, [isA<A2uiValidationException>()]);
+      });
+
+      test('reports an unfinished bare message and keeps the prose', () async {
+        final outcome = await parseAll(['Here you go: ', fragment]);
+
+        expect(textsOf(outcome.events), ['Here you go:']);
+        expect(outcome.errors, [isA<A2uiValidationException>()]);
+      });
+
+      test('reports a fenced one after a failure of the source', () async {
+        final failure = StateError('the model call broke');
+        final outcome = await parseAll([
+          'Here you go.\n\n```json\n',
+          fragment,
+        ], thenFail: failure);
+
+        expect(textsOf(outcome.events), ['Here you go.']);
+        expect(outcome.errors, [
+          same(failure),
+          isA<A2uiValidationException>(),
         ]);
-      },
-    );
+      });
+
+      test('reports a bare one after a failure of the source', () async {
+        final failure = StateError('the model call broke');
+        final outcome = await parseAll([
+          'Here you go: ',
+          fragment,
+        ], thenFail: failure);
+
+        expect(textsOf(outcome.events), ['Here you go:']);
+        expect(outcome.errors, [
+          same(failure),
+          isA<A2uiValidationException>(),
+        ]);
+      });
+
+      test('reports an unclosed plain fence holding a message', () async {
+        final outcome = await parseAll(['```\n$fragment']);
+
+        expect(textsOf(outcome.events), isEmpty);
+        expect(outcome.errors, [isA<A2uiValidationException>()]);
+      });
+
+      test('keeps a trailing brace in prose as text', () async {
+        final outcome = await parseAll(['Wrap the value in {']);
+
+        expect(proseOf(outcome.events), 'Wrap the value in {');
+        expect(outcome.errors, isEmpty);
+      });
+
+      test('keeps an unclosed code fence that is not A2UI as text', () async {
+        final outcome = await parseAll(['Try this:\n```dart\nvoid main() {']);
+
+        expect(proseOf(outcome.events), 'Try this:\n```dart\nvoid main() {');
+        expect(outcome.errors, isEmpty);
+      });
+    });
 
     test('parses every message in a JSON array', () async {
       const arrayOfMessages =

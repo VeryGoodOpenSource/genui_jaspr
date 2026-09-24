@@ -401,15 +401,15 @@ The example's own [README](example/README.md) walks through its pieces.
 ## Contributing
 
 Issues and pull requests are welcome at
-https://github.com/brianegan/genui_jaspr. [CONTRIBUTING.md](CONTRIBUTING.md)
+https://github.com/VeryGoodOpenSource/genui_jaspr. [CONTRIBUTING.md](CONTRIBUTING.md)
 has the test commands and explains how the suites fit together.
 
 - A2UI protocol: https://a2ui.org
 - Jaspr: https://jaspr.site
 - Flutter's genui: https://github.com/flutter/genui
 
-[ci_badge]: https://github.com/brianegan/genui_jaspr/actions/workflows/main.yaml/badge.svg
-[ci_link]: https://github.com/brianegan/genui_jaspr/actions/workflows/main.yaml
+[ci_badge]: https://github.com/VeryGoodOpenSource/genui_jaspr/actions/workflows/main.yaml/badge.svg
+[ci_link]: https://github.com/VeryGoodOpenSource/genui_jaspr/actions/workflows/main.yaml
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
 [pub_badge]: https://img.shields.io/pub/v/genui_jaspr.svg

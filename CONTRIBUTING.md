@@ -1,7 +1,7 @@
 # Contributing
 
 Thanks for taking a look! Issues and pull requests both live at
-https://github.com/brianegan/genui_jaspr. If something in the README did not
+https://github.com/VeryGoodOpenSource/genui_jaspr. If something in the README did not
 match what the package did, that is a bug too, so please file it.
 
 ## Running the tests
